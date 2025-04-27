@@ -14,9 +14,11 @@ from streamlit_option_menu import option_menu
 
 st.set_page_config(page_title="Layoff Forecast Dashboard", layout="wide")
 
+CSV_URL = "https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/Layoffs.fyi-1128.csv"
+
 @st.cache_data
 def load_data():
-    df = pd.read_csv("Layoffs.fyi-1128.csv")
+    df = pd.read_csv(CSV_URL)
     df['Date'] = pd.to_datetime(df['Date'])
     df['Date Added'] = pd.to_datetime(df['Date Added'])
     df['Layoff_Percentage'] = df['%'].str.replace('%', '', regex=False).astype(float)
@@ -26,6 +28,7 @@ def load_data():
     df['Month'] = df['Date'].dt.month
     df['Quarter'] = df['Date'].dt.quarter
     return df
+
 
 def evaluate_models(X_train, X_test, y_train, y_test):
     models = {
