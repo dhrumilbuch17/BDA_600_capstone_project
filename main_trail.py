@@ -70,7 +70,7 @@ def plot_model_comparison(df_results):
 with st.sidebar:
     page = option_menu(
         menu_title="\U0001F4CA Layoff Forecast Dashboard",
-        options=["Overview", "Company Data", "Trends", "EDA", "Forecast", "Model Comparison"],
+        options=["Overview", "Company Data", "Trends", "EDA", "Forecast", "Model Comparison", "Authors"],
         icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity"],
         default_index=0
     )
@@ -137,32 +137,49 @@ if st.sidebar.button("Run Analysis"):
 # Page Routing
 if page == "Overview":
     st.title("Overview")
-    st.markdown("This dashboard analyzes layoffs and predicts future trends.")
     st.markdown("""
-    Analyzing corporate layoffs is traditionally time-consuming due to scattered data and inconsistent reporting across industries. 
-    To address this challenge, we developed an AI-driven layoff risk prediction and visualization system called **Job Shield**.
+<style>
+.big-font {
+    font-size:22px !important;
+    font-weight: 400;
+    line-height: 1.6;
+}
+.highlight-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #0047AB;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    Our system processes historical layoff data, financial indicators, and industry trends to predict layoff risk scores for companies. 
-    Using machine learning models such as **Random Forest**, **Gradient Boosting**, **Linear Regression**, and **XGBoost**, 
-    we trained and validated predictive models that assess key factors like layoff frequency, funding stability, and workforce reductions across different sectors.
+    st.markdown("""
+<div class="highlight-title">Job Shield: AI-Powered Layoff Risk Forecasting and Analysis</div>
 
-    The results are visualized through an interactive **Streamlit dashboard**, allowing users to:
-    - Filter by industry and country,
-    - Analyze real-time risk predictions,
-    - Explore historical layoff trends,
-    - Compare model performance, and
-    - View comprehensive forecasts of future layoffs.
+<div class="big-font">
+Analyzing corporate layoffs is traditionally time-consuming due to scattered data and inconsistent reporting across industries. 
+To address this challenge, we developed an AI-driven layoff risk prediction and visualization system called <b>Job Shield</b>.
 
-    Through exploratory data analysis (EDA) and predictive modeling, our dashboard highlights significant variations in layoff patterns across countries, industries, and time periods. 
-    This empowers job seekers, professionals, and analysts to make more informed career and business decisions.
+Our system processes historical layoff data, financial indicators, and industry trends to predict layoff risk scores for companies. 
+Using machine learning models such as <b>Random Forest</b>, <b>Gradient Boosting</b>, <b>Linear Regression</b>, and <b>XGBoost</b>, 
+we trained and validated predictive models that assess key factors like layoff frequency, funding stability, and workforce reductions across different sectors.
 
-    By integrating machine learning, interactive forecasting (using Prophet), and dynamic visualizations, 
-    our platform simplifies layoff risk assessment, enhances workforce trend transparency, and promotes data-driven decision-making.
-    """)
+The results are visualized through an interactive <b>Streamlit dashboard</b>, allowing users to:
+<ul>
+    <li>Filter by industry and country,</li>
+    <li>Analyze real-time risk predictions,</li>
+    <li>Explore historical layoff trends,</li>
+    <li>Compare model performance, and</li>
+    <li>View comprehensive forecasts of future layoffs.</li>
+</ul>
 
+Through exploratory data analysis (EDA) and predictive modeling, our dashboard highlights significant variations in layoff patterns across countries, industries, and time periods. 
+This empowers job seekers, professionals, and analysts to make more informed career and business decisions.
+
+By integrating machine learning, interactive forecasting (using Prophet), and dynamic visualizations, 
+our platform simplifies layoff risk assessment, enhances workforce trend transparency, and promotes data-driven decision-making.
+</div>
+""", unsafe_allow_html=True)
     # Summary Visuals - Overview Page
-
-    st.subheader("📊 Data Summary Visualizations")
 
     col1, col2 = st.columns(2)
 
@@ -211,6 +228,37 @@ if page == "Overview":
     col2.plotly_chart(fig_country_pie, use_container_width=True)
 
     
+elif page == "Company Data" and not st.session_state.filtered_df.empty:
+    st.title("Company Layoff Details")
+
+    st.divider()
+
+    st.subheader("🌍 Geospatial Analysis of Layoffs by Country")
+
+    # Aggregate layoffs by country
+    country_layoffs = st.session_state.filtered_df.groupby('Country')['Laid_Off'].sum().reset_index()
+
+    # Build Choropleth map
+    fig_map = px.choropleth(
+        country_layoffs,
+        locations="Country",
+        locationmode="country names",
+        color="Laid_Off",
+        color_continuous_scale="Reds",
+        title="Total Layoffs by Country",
+        labels={'Laid_Off': 'Total Layoffs'},
+        hover_name="Country"
+    )
+
+    fig_map.update_layout(
+        geo=dict(showframe=False, showcoastlines=False, projection_type='equirectangular'),
+        height=600,
+        margin={"r":0,"t":30,"l":0,"b":0}
+    )
+
+    st.plotly_chart(fig_map, use_container_width=True)
+
+    # Layoff Metrics
     total_layoffs = df['Laid_Off'].sum(skipna=True)
 
     if not st.session_state.filtered_df.empty:
@@ -221,30 +269,76 @@ if page == "Overview":
         filtered_layoffs = 0
         layoff_percentage = 0
 
+    # --- Convert Layoffs to Millions ---
+    total_layoffs_m = round(total_layoffs / 1_000_000, 2)
+    filtered_layoffs_m = round(filtered_layoffs / 1_000_000, 2)
+
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("Total Layoffs", f"{int(total_layoffs):,}")
-    col2.metric("Total Layoffs based on selections", f"{int(filtered_layoffs):,}")
+    col1.metric("Total Layoffs", f"{total_layoffs_m}M")
+    col2.metric("Total Layoffs based on selections", f"{filtered_layoffs_m}M")
     col3.metric("Layoff %", f"{layoff_percentage}%")
 
     st.metric("Companies Affected", df['Company'].nunique())
 
-
-elif page == "Company Data" and not st.session_state.filtered_df.empty:
-    st.title("Company Layoff Details")
+    # st.title("Company Layoff Details")
     st.dataframe(st.session_state.filtered_df[['Company', 'Industry', 'Country', 'Raised_Millions', 'Laid_Off',
                                                'Layoff_Percentage', 'Layoff_Risk_Score']].dropna())
 
 elif page == "Trends" and not st.session_state.filtered_df.empty:
     st.title("Layoff Trends")
-    by_industry = st.session_state.filtered_df.groupby('Industry')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
-    st.plotly_chart(px.bar(by_industry, x='Industry', y='Laid_Off'), use_container_width=True)
-    by_country = st.session_state.filtered_df.groupby('Country')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
-    st.plotly_chart(px.bar(by_country, x='Country', y='Laid_Off'), use_container_width=True)
+
+    trend_option = st.selectbox(
+    "Select trend to view:",
+    ["Layoffs by Industry", "Layoffs by Country", "Layoffs by Year", "Layoffs by Company Stage"]
+    )
+
+    if trend_option == "Layoffs by Industry":
+        by_industry = st.session_state.filtered_df.groupby('Industry')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
+        fig = px.bar(by_industry, x='Industry', y='Laid_Off', title="Layoffs by Industry", color='Laid_Off')
+        st.plotly_chart(fig, use_container_width=True)
+
+    elif trend_option == "Layoffs by Country":
+        by_country = st.session_state.filtered_df.groupby('Country')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
+        fig = px.bar(by_country, x='Country', y='Laid_Off', title="Layoffs by Country", color='Laid_Off')
+        st.plotly_chart(fig, use_container_width=True)
+
+    elif trend_option == "Layoffs by Year":
+        by_year = st.session_state.filtered_df.groupby('Year')['Laid_Off'].sum().reset_index()
+        fig = px.line(by_year, x='Year', y='Laid_Off', title="Layoffs by Year", markers=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+    elif trend_option == "Layoffs by Company Stage":
+        by_stage = st.session_state.filtered_df.groupby('Stage')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
+        fig = px.bar(by_stage, x='Stage', y='Laid_Off', title="Layoffs by Company Stage", color='Laid_Off')
+        st.plotly_chart(fig, use_container_width=True)
+
+        # by_industry = st.session_state.filtered_df.groupby('Industry')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
+        # st.plotly_chart(px.bar(by_industry, x='Industry', y='Laid_Off'), use_container_width=True)
+        # by_country = st.session_state.filtered_df.groupby('Country')['Laid_Off'].sum().sort_values(ascending=False).reset_index()
+        # st.plotly_chart(px.bar(by_country, x='Country', y='Laid_Off'), use_container_width=True)
 
 elif page == "EDA" and not st.session_state.filtered_df.empty:
     st.title("Exploratory Data Analysis (EDA)")
 
+    # 6. Heatmap: Industry vs Country Layoffs
+    st.header("Layoffs by Industry and Country")
+    heatmap_df = st.session_state.filtered_df.pivot_table(
+        index='Industry',
+        columns='Country',
+        values='Laid_Off',
+        aggfunc='sum'
+    ).fillna(0)
+
+    fig_heatmap = px.imshow(
+        heatmap_df,
+        labels=dict(x="Country", y="Industry", color="Number of Layoffs"),
+        title="Industry vs Country Layoffs Heatmap",
+        color_continuous_scale='Reds'
+    )
+    fig_heatmap.update_layout(xaxis_title="Country", yaxis_title="Industry")
+    st.plotly_chart(fig_heatmap, use_container_width=True)
+    
     # 1. Boxplot: Laid Off across Industries
     st.header("Distribution of Layoffs Across Industries")
     fig_box = px.box(
@@ -318,23 +412,7 @@ elif page == "EDA" and not st.session_state.filtered_df.empty:
     fig_time.update_layout(xaxis_title="Date", yaxis_title="Number of Layoffs", hovermode="x unified")
     st.plotly_chart(fig_time, use_container_width=True)
 
-    # 6. Heatmap: Industry vs Country Layoffs
-    st.header("Layoffs by Industry and Country")
-    heatmap_df = st.session_state.filtered_df.pivot_table(
-        index='Industry',
-        columns='Country',
-        values='Laid_Off',
-        aggfunc='sum'
-    ).fillna(0)
-
-    fig_heatmap = px.imshow(
-        heatmap_df,
-        labels=dict(x="Country", y="Industry", color="Number of Layoffs"),
-        title="Industry vs Country Layoffs Heatmap",
-        color_continuous_scale='Reds'
-    )
-    fig_heatmap.update_layout(xaxis_title="Country", yaxis_title="Industry")
-    st.plotly_chart(fig_heatmap, use_container_width=True)
+    
 
 elif page == "Forecast" and st.session_state.forecast is not None:
     st.title("Layoff Forecast")
@@ -349,4 +427,85 @@ elif page == "Model Comparison" and st.session_state.model_results is not None:
     st.dataframe(st.session_state.model_results)
     st.plotly_chart(plot_model_comparison(st.session_state.model_results), use_container_width=True)
     st.success(f"Recommended Model Based on RMSE: {st.session_state.selected_model_name}")
-    st.session_state.selected_model_name = st.selectbox("Select Model to Use for Risk Scoring", st.session_state.model_results['Model'])
+
+elif page == "Authors":
+    st.title("👨‍💻 Authors")
+
+    st.markdown("""
+    <style>
+    .author-card {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    .author-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+    .author-links {
+        font-size: 18px;
+        margin-top: 10px;
+    }
+    .author-links a {
+        text-decoration: none;
+        color: #1a73e8;
+    }
+    .author-links a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.divider()
+
+    ## First Author
+    with st.container():
+        st.markdown('<div class="author-card">', unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.image("https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/sharad_pic.jpg", width=220)
+        with col2:
+            st.markdown("""
+            <div class="author-name">Sharad Parmar</div>
+            <div class="author-links">
+                📧 <a href="mailto:sparmar1412@sdsu.edu">sparmar1412@sdsu.edu</a><br>
+                🔗 <a href="https://www.linkedin.com/in/sharad2000" target="_blank">linkedin.com/in/sharad2000</a>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    ## Second Author
+    with st.container():
+        st.markdown('<div class="author-card">', unsafe_allow_html=True)
+        col3, col4 = st.columns([1, 2])
+        with col3:
+            st.image("https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/dhrumil_pic.jpg", width=220)
+        with col4:
+            st.markdown("""
+            <div class="author-name">Dhrumil Buch</div>
+            <div class="author-links">
+                📧 <a href="mailto:dbuch3482@sdsu.edu">dbuch3482@sdsu.edu</a><br>
+                🔗 <a href="https://www.linkedin.com/in/dhrumilbuch" target="_blank">linkedin.com/in/dhrumilbuch</a>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    ## Third Author
+    with st.container():
+        st.markdown('<div class="author-card">', unsafe_allow_html=True)
+        col5, col6 = st.columns([1, 2])
+        with col5:
+            st.image("https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/aditya_pic.jpg", width=220)
+        with col6:
+            st.markdown("""
+            <div class="author-name">Aditya Desale</div>
+            <div class="author-links">
+                📧 <a href="mailto:adesale1896@sdsu.edu">adesale1896@sdsu.edu</a><br>
+                🔗 <a href="https://www.linkedin.com/in/aditya-desale/" target="_blank">linkedin.com/in/aditya-desale</a>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
