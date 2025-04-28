@@ -82,14 +82,14 @@ def plot_model_comparison(df_results):
 # Sidebar navigation
 with st.sidebar:
     # Center the logo with HTML
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/logo.png" width="140">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # st.markdown(
+    #     """
+    #     <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+    #         <img src="https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/logo.png" width="140">
+    #     </div>
+    #     """,
+    #     unsafe_allow_html=True
+    # )
 
     # Option menu below
     page = option_menu(
