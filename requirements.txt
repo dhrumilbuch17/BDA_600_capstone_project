@@ -3,6 +3,7 @@ pandas>=2.2
 numpy>=1.26
 scikit-learn>=1.4
 xgboost>=2.0
-prophet>=1.2
+prophet
 plotly>=5.19
 streamlit-option-menu>=0.3.6
+cmdstanpy
