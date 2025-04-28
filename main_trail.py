@@ -42,7 +42,7 @@ def load_data():
     df['Quarter'] = df['Date'].dt.quarter
     return df
 
-
+@st.cache_data
 def evaluate_models(X_train, X_test, y_train, y_test):
     models = {
         "Random Forest": RandomForestRegressor(n_estimators=100, random_state=42),
@@ -98,7 +98,8 @@ with st.sidebar:
         icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity", "people"],
         default_index=0
     )
-
+    
+@st.cache_data
 # Load data
 df = load_data()
 
