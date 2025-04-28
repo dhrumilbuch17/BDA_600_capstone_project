@@ -7,3 +7,4 @@ prophet
 plotly>=5.19
 streamlit-option-menu>=0.3.6
 cmdstanpy
+statsmodels
