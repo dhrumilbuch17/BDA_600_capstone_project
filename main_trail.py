@@ -14,18 +14,7 @@ from streamlit_option_menu import option_menu
 
 st.set_page_config(page_title="Layoff Forecast Dashboard", layout="wide")
 
-st.markdown("""
-    <style>
-    /* Style the Sidebar Title */
-    [data-testid="stSidebar"] .css-1d391kg {
-        font-size: 28px;
-        font-weight: bold;
-        color: #0047AB; /* Dark Blue */
-        text-align: center;
-        padding: 10px 0px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+
 
 CSV_URL = "https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/Layoffs.fyi-1128.csv"
 
@@ -81,24 +70,12 @@ def plot_model_comparison(df_results):
 
 # Sidebar navigation
 with st.sidebar:
-    # Center the logo with HTML
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
-            <img src="https://raw.githubusercontent.com/dhrumilbuch17/BDA_600_capstone_project/main/logo.png" width="140">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Option menu below
     page = option_menu(
-        menu_title=None,  # No title
+        menu_title="JobShield.AI",
         options=["Overview", "Company Data", "Trends", "EDA", "Forecast", "Model Comparison", "Authors"],
-        icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity", "people"],
+        icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity"],
         default_index=0
     )
-
 
 # Load data
 df = load_data()
@@ -114,7 +91,7 @@ if "filtered_df" not in st.session_state:
     st.session_state.trained_models = {}
     st.session_state.selected_model_name = "Random Forest"
 
-if st.sidebar.button("Run"):
+if st.sidebar.button("Run Analysis"):
     filtered_df = df.copy()
     if industry_filter:
         filtered_df = filtered_df[filtered_df['Industry'].isin(industry_filter)]
@@ -178,7 +155,7 @@ if page == "Overview":
 """, unsafe_allow_html=True)
 
     st.markdown("""
-<div class="highlight-title">Job Shield: Layoff Risk Forecasting and Analysis</div>
+<div class="highlight-title">Job Shield: AI-Powered Layoff Risk Forecasting and Analysis</div>
 
 <div class="big-font">
 Analyzing corporate layoffs is traditionally time-consuming due to scattered data and inconsistent reporting across industries. 
