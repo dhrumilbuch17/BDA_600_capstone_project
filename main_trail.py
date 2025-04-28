@@ -158,6 +158,12 @@ if st.sidebar.button("Run"):
     else:
         st.warning("No data available after filtering.")
 
+with st.sidebar:
+    if st.button("Clear Cache"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.success("Cache Cleared Successfully!")
+        
 # Page Routing
 if page == "Overview":
     st.title("Overview")
