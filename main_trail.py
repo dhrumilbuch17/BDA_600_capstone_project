@@ -98,7 +98,6 @@ with st.sidebar:
         icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity", "people"],
         default_index=0
     )
-    st.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
 # Load data
 df = load_data()
