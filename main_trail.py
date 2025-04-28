@@ -98,6 +98,13 @@ with st.sidebar:
         icons=["house", "building", "bar-chart-line", "pie-chart", "graph-up-arrow", "activity", "people"],
         default_index=0
     )
+    st.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+
+    # Add Clear Cache Button
+    if st.button("🧹 Clear Cache", type="primary"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.success("Cache Cleared! Please rerun.")
 
 
 # Load data
