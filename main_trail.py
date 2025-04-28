@@ -114,7 +114,7 @@ if "filtered_df" not in st.session_state:
     st.session_state.trained_models = {}
     st.session_state.selected_model_name = "Random Forest"
 
-if st.sidebar.button("Runx"):
+if st.sidebar.button("Run"):
     filtered_df = df.copy()
     if industry_filter:
         filtered_df = filtered_df[filtered_df['Industry'].isin(industry_filter)]
