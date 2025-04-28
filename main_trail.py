@@ -99,7 +99,6 @@ with st.sidebar:
         default_index=0
     )
     
-@st.cache_data
 # Load data
 df = load_data()
 
